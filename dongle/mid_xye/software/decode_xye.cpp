@@ -14,32 +14,41 @@ void decodeXYE(HardwareSerial &rs485, WiFiUDP &udp, int udpPort) {
   if (receivingRS485Sequence) {
     buffer[rcvByteCount++] = byteReceived;
     
-    if (byteReceived == MASTER_END_BYTE) {
-      printBuffer(buffer, rcvByteCount);
-      sendBufferUDP(udp, buffer, rcvByteCount, udpPort);
-      receivingRS485Sequence = false;
-      rcvByteCount = 0;
-    } else if (byteReceived == MASTER_START_BYTE) {
-      printBuffer(buffer, rcvByteCount);
-      sendBufferUDP(udp, buffer, rcvByteCount, udpPort);
-      receivingRS485Sequence = true; // Start a new frame
-      rcvByteCount = 0;
-      buffer[rcvByteCount++] = byteReceived;
-    } else if (rcvByteCount == (RCV_BUFFER_LENGTH - 1)) {
-      Serial.print("Frame error: Data length exceeded. Data received: ");
-      printBuffer(buffer, rcvByteCount);
-      sendBufferUDP(udp, buffer, rcvByteCount, udpPort);
-      receivingRS485Sequence = false;
-      rcvByteCount = 0;
-    }
+    switch (byteReceived) {
+      case MASTER_END_BYTE:
+        printBuffer(buffer, rcvByteCount);
+        sendBufferUDP(udp, buffer, rcvByteCount, udpPort);
+        receivingRS485Sequence = false;
+        rcvByteCount = 0;
+        break;
 
-  } else if (byteReceived == MASTER_START_BYTE) {
-    receivingRS485Sequence = true;
-    rcvByteCount = 0;
-    buffer[rcvByteCount++] = byteReceived;
-  }
+      case MASTER_START_BYTE:
+        printBuffer(buffer, rcvByteCount);
+        sendBufferUDP(udp, buffer, rcvByteCount, udpPort);
+        receivingRS485Sequence = true; // Start a new frame
+        rcvByteCount = 0;
+        buffer[rcvByteCount++] = byteReceived;
+        break;
+
+      case RCV_BUFFER_LENGTH - 1:
+        Serial.print("Frame error: Data length exceeded. Data received: ");
+        printBuffer(buffer, rcvByteCount);
+        sendBufferUDP(udp, buffer, rcvByteCount, udpPort);
+        receivingRS485Sequence = false;
+        rcvByteCount = 0;
+        break;
+
+      case MASTER_START_BYTE:
+        receivingRS485Sequence = true;
+        rcvByteCount = 0;
+        buffer[rcvByteCount++] = byteReceived;    
+        break;4
+
+      default:
+        break;
+   }
+  } 
 }
-
 void printBuffer(uint8_t *buffer, uint8_t length) {
   for (uint8_t i = 0; i < length; i++) {
     if (buffer[i] < 0x10) {
