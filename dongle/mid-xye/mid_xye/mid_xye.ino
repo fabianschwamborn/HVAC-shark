@@ -1,7 +1,7 @@
 #include <WiFi.h>
 #include <WiFiAP.h>
 #include <WiFiUdp.h>
-#include "decode_xye.h"
+#include "src/intercept-mid-xye/decode_xye.h"
 
 #define MASTER_START_BYTE 0xAA
 #define MASTER_END_BYTE 0x55
@@ -33,7 +33,7 @@ void setup() {
 }
 
 void loop() {
-  if (serialRS485.available()) {
+  while (serialRS485.available()) {
     decodeXYE(serialRS485, udp, udpPort);
   }
 }
