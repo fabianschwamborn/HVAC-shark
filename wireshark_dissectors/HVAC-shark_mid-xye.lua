@@ -71,73 +71,8 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
 
 
 
-            -- Check if the destination is 0x80
-            if protocol_buffer(2, 1):uint() == 0x80 then
-                -- Decode frames with destination 0x80
-
-                data_subtree:add(udp_payload_buffer(13, 1), "Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
-                data_subtree:add(udp_payload_buffer(14, 1), "Response Code: " .. string.format("0x%02X", protocol_buffer(1, 1):uint()))
-                data_subtree:add(udp_payload_buffer(15, 1), "To Master: " .. string.format("0x%02X", protocol_buffer(2, 1):uint()))
-                data_subtree:add(udp_payload_buffer(16, 1), "Destination: " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
-                data_subtree:add(udp_payload_buffer(17, 1), "Source/Own ID: " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
-                data_subtree:add(udp_payload_buffer(18, 1), "Destination (masterID): " .. string.format("0x%02X", protocol_buffer(5, 1):uint()))
-                data_subtree:add(udp_payload_buffer(19, 1), "Unclear: " .. string.format("0x%02X", protocol_buffer(6, 1):uint()))
-                data_subtree:add(udp_payload_buffer(20, 1), "Capabilities: " .. string.format("0x%02X", protocol_buffer(7, 1):uint()))
-
-                -- Decode byte 0x08
-                -- Decode the oper_mode field
-                local oper_mode = protocol_buffer(8, 1):uint()
-                local oper_mode_str = ""
-                if oper_mode == 0x00 then
-                    oper_mode_str = "Off"
-                elseif oper_mode == 0x80 then
-                    oper_mode_str = "Auto"
-                elseif oper_mode == 0x88 then
-                    oper_mode_str = "Cool"
-                elseif oper_mode == 0x82 then
-                    oper_mode_str = "Dry"
-                elseif oper_mode == 0x84 then
-                    oper_mode_str = "Heat"
-                elseif oper_mode == 0x81 then
-                    oper_mode_str = "Fan"
-                else
-                    oper_mode_str = "Unknown"
-                end
-                data_subtree:add(udp_payload_buffer(21, 1), "Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. oper_mode_str .. ")")
-
-                data_subtree:add(udp_payload_buffer(22, 1), "Fan: " .. string.format("0x%02X", protocol_buffer(9, 1):uint()))
-                data_subtree:add(udp_payload_buffer(23, 1), "Set Temp: " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
-                data_subtree:add(udp_payload_buffer(24, 1), "T1 Temp: " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
-                data_subtree:add(udp_payload_buffer(25, 1), "T2A Temp: " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
-                data_subtree:add(udp_payload_buffer(26, 1), "T2B Temp: " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
-                data_subtree:add(udp_payload_buffer(27, 1), "T3 Temp: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
-                data_subtree:add(udp_payload_buffer(28, 1), "Current: " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
-                data_subtree:add(udp_payload_buffer(29, 1), "Frequency: " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
-                data_subtree:add(udp_payload_buffer(30, 1), "Timer Start: " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
-                data_subtree:add(udp_payload_buffer(31, 1), "Timer Stop: " .. string.format("0x%02X", protocol_buffer(18, 1):uint()))
-                data_subtree:add(udp_payload_buffer(32, 1), "Run: " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
-                data_subtree:add(udp_payload_buffer(33, 1), "Mode Flags: " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
-                data_subtree:add(udp_payload_buffer(34, 1), "Operating Flags: " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
-                data_subtree:add(udp_payload_buffer(35, 1), "Error E (0..7): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
-                data_subtree:add(udp_payload_buffer(36, 1), "Error E (7..f): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
-                data_subtree:add(udp_payload_buffer(37, 1), "Protect P (0..7): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
-                data_subtree:add(udp_payload_buffer(38, 1), "Protect P (7..f): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
-                data_subtree:add(udp_payload_buffer(39, 1), "CCM Comm Error: " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
-                data_subtree:add(udp_payload_buffer(40, 1), "Unknown 1: " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
-                data_subtree:add(udp_payload_buffer(41, 1), "Unknown 2: " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
-                data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(29, 1):uint()))
-                data_subtree:add(udp_payload_buffer(43, 1), "Prologue: " .. string.format("0x%02X", protocol_buffer(30, 1):uint()))
-
-                -- Validate CRC
-                local crc_80 = protocol_buffer(29, 1):uint()
-                local calculated_crc_80 = validate_crc(udp_payload_buffer(13, 29), 29)
-                if calculated_crc_80 == crc_80 then
-                    data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
-                else
-                    data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
-                end
-
-            else
+            local protocol_length = protocol_buffer:len()
+            if protocol_length == 16 then
                 -- Decode frames with destination other than 0x80
 
                 data_subtree:add(udp_payload_buffer(13, 1), "Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
@@ -241,6 +176,72 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                 else
                     data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()) .. " (Invalid, calculated: 0x%02X)", calculated_crc)
                 end
+            elseif protocol_length == 32 then
+                data_subtree:add(udp_payload_buffer(13, 1), "Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
+                data_subtree:add(udp_payload_buffer(14, 1), "Response Code: " .. string.format("0x%02X", protocol_buffer(1, 1):uint()))
+                data_subtree:add(udp_payload_buffer(15, 1), "To Master: " .. string.format("0x%02X", protocol_buffer(2, 1):uint()))
+                data_subtree:add(udp_payload_buffer(16, 1), "Destination: " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
+                data_subtree:add(udp_payload_buffer(17, 1), "Source/Own ID: " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
+                data_subtree:add(udp_payload_buffer(18, 1), "Destination (masterID): " .. string.format("0x%02X", protocol_buffer(5, 1):uint()))
+                data_subtree:add(udp_payload_buffer(19, 1), "Unclear: " .. string.format("0x%02X", protocol_buffer(6, 1):uint()))
+                data_subtree:add(udp_payload_buffer(20, 1), "Capabilities: " .. string.format("0x%02X", protocol_buffer(7, 1):uint()))
+
+                -- Decode byte 0x08
+                -- Decode the oper_mode field
+                local oper_mode = protocol_buffer(8, 1):uint()
+                local oper_mode_str = ""
+                if oper_mode == 0x00 then
+                    oper_mode_str = "Off"
+                elseif oper_mode == 0x80 then
+                    oper_mode_str = "Auto"
+                elseif oper_mode == 0x88 then
+                    oper_mode_str = "Cool"
+                elseif oper_mode == 0x82 then
+                    oper_mode_str = "Dry"
+                elseif oper_mode == 0x84 then
+                    oper_mode_str = "Heat"
+                elseif oper_mode == 0x81 then
+                    oper_mode_str = "Fan"
+                else
+                    oper_mode_str = "Unknown"
+                end
+                data_subtree:add(udp_payload_buffer(21, 1), "Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. oper_mode_str .. ")")
+
+                data_subtree:add(udp_payload_buffer(22, 1), "Fan: " .. string.format("0x%02X", protocol_buffer(9, 1):uint()))
+                data_subtree:add(udp_payload_buffer(23, 1), "Set Temp: " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
+                data_subtree:add(udp_payload_buffer(24, 1), "T1 Temp: " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
+                data_subtree:add(udp_payload_buffer(25, 1), "T2A Temp: " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
+                data_subtree:add(udp_payload_buffer(26, 1), "T2B Temp: " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
+                data_subtree:add(udp_payload_buffer(27, 1), "T3 Temp: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
+                data_subtree:add(udp_payload_buffer(28, 1), "Current: " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
+                data_subtree:add(udp_payload_buffer(29, 1), "Frequency: " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
+                data_subtree:add(udp_payload_buffer(30, 1), "Timer Start: " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
+                data_subtree:add(udp_payload_buffer(31, 1), "Timer Stop: " .. string.format("0x%02X", protocol_buffer(18, 1):uint()))
+                data_subtree:add(udp_payload_buffer(32, 1), "Run: " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
+                data_subtree:add(udp_payload_buffer(33, 1), "Mode Flags: " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
+                data_subtree:add(udp_payload_buffer(34, 1), "Operating Flags: " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
+                data_subtree:add(udp_payload_buffer(35, 1), "Error E (0..7): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
+                data_subtree:add(udp_payload_buffer(36, 1), "Error E (7..f): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
+                data_subtree:add(udp_payload_buffer(37, 1), "Protect P (0..7): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
+                data_subtree:add(udp_payload_buffer(38, 1), "Protect P (7..f): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
+                data_subtree:add(udp_payload_buffer(39, 1), "CCM Comm Error: " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
+                data_subtree:add(udp_payload_buffer(40, 1), "Unknown 1: " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
+                data_subtree:add(udp_payload_buffer(41, 1), "Unknown 2: " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
+                data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(30, 1):uint()))
+                data_subtree:add(udp_payload_buffer(43, 1), "Prologue: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
+
+                -- Validate CRC
+                local crc_80 = protocol_buffer(30, 1):uint()
+                local calculated_crc_80 = validate_crc(udp_payload_buffer(13, 32), 32)
+                if calculated_crc_80 == crc_80 then
+                    data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
+                else
+                    data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
+                end
+
+            else
+                 -- Print the data for longer buffers
+                data_subtree:add(udp_payload_buffer(13, protocol_buffer:len()), "Data: " .. tostring(protocol_buffer:bytes()))
             end
         end
     end
