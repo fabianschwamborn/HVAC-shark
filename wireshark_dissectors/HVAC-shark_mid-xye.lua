@@ -159,24 +159,37 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     end
                     data_subtree:add(udp_payload_buffer(22, 1), "Mode Flags: " .. string.format("0x%02X", mode_flags) .. " (" .. mode_flags_str .. ")")
 
+                    -- Decode byte 0x0A
+                    -- Decode the timer_start field
                     data_subtree:add(udp_payload_buffer(23, 1), "Timer Start: " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
+                    -- Decode byte 0x0B
+                    -- Decode the timer_stop field
                     data_subtree:add(udp_payload_buffer(24, 1), "Timer Stop: " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
+                    -- Decode byte 0x0C
+                    -- Decode the run field
                     data_subtree:add(udp_payload_buffer(25, 1), "Unknown: " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
                 else
                     data_subtree:add(udp_payload_buffer(19, 7), "Payload: " .. tostring(protocol_buffer(6, 7):bytes()))
-                end
+                end -- end of if protocol_buffer(1, 1):uint() == 0xc3
 
+                -- Decode byte 0x0D
+                -- Decode command check field
                 data_subtree:add(udp_payload_buffer(26, 1), "Command Check: " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
-                data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
-                data_subtree:add(udp_payload_buffer(28, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
 
-                -- Validate CRC
+                -- Decode byte 0x0E
+                -- Decode and validate the crc field
                 local calculated_crc = validate_crc(udp_payload_buffer(13, 16), 16)
-                if calculated_crc == protocol_buffer(14, 1):uint() then
-                    data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()) .. " (Valid)")
+                local crc_value = protocol_buffer(14, 1):uint()
+                if calculated_crc == crc_value then
+                    data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", crc_value) .. " (Valid)")
                 else
-                    data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()) .. " (Invalid, calculated: 0x%02X)", calculated_crc)
+                    data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", crc_value) .. " (Invalid, calculated: 0x%02X)", calculated_crc)
                 end
+                -- Decode byte 0x0F
+                -- Decode the end of frame field
+                data_subtree:add(udp_payload_buffer(28, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
+            
+            
             elseif protocol_length == 32 then
                 -- for 32-byte frames at least 2 versions are existing, 0xc4 is at least decoded differently than other commands
                 local command_code = protocol_buffer(1, 1):uint()
@@ -438,17 +451,51 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     data_subtree:add(udp_payload_buffer(31, 1), "Timer Stop: " .. string.format("0x%02X", timer_stop) .. 
                         string.format(" (Hours: %d, Minutes: %d)", hours_stop, minutes_stop))
                     
+                    -- Decode byte 0x13 (dec 19)
+                    -- Decode the run field
                     data_subtree:add(udp_payload_buffer(32, 1), "Run: " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
+
+                    -- Decode byte 0x14 (dec 20)
+                    -- Decode the mode_flags field
                     data_subtree:add(udp_payload_buffer(33, 1), "Mode Flags: " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
+
+                    -- Decode byte 0x15 (dec 21)
+                    -- Decode the operating_flags field
                     data_subtree:add(udp_payload_buffer(34, 1), "Operating Flags: " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
+
+                    -- Decode byte 0x16 (dec 22)
+                    -- Decode the error E (0..7) field
                     data_subtree:add(udp_payload_buffer(35, 1), "Error E (0..7): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
+
+                    -- Decode byte 0x17 (dec 23)
+                    -- Decode the error E (7..f) field
                     data_subtree:add(udp_payload_buffer(36, 1), "Error E (7..f): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
+
+                    -- Decode byte 0x18 (dec 24)
+                    -- Decode the protect P (0..7) field
                     data_subtree:add(udp_payload_buffer(37, 1), "Protect P (0..7): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
+
+                    -- Decode byte 0x19 (dec 25)
+                    -- Decode the protect P (7..f) field
                     data_subtree:add(udp_payload_buffer(38, 1), "Protect P (7..f): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
+
+                    -- Decode byte 0x1A (dec 26)
+                    -- Decode the CCM Comm Error field
                     data_subtree:add(udp_payload_buffer(39, 1), "CCM Comm Error: " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
+
+                    -- Decode byte 0x1B (dec 27)
+                    -- Decode unknown field 1
                     data_subtree:add(udp_payload_buffer(40, 1), "Unknown 1: " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
+
+                    -- Decode byte 0x1C (dec 28)
+                    -- Decode unknown field 2
                     data_subtree:add(udp_payload_buffer(41, 1), "Unknown 2: " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
                 
+                    -- Decode byte 0x1D (dec 29)
+                    -- Decode unknown field 3
+                    data_subtree:add(udp_payload_buffer(42, 1), "Unknown 3: " .. string.format("0x%02X", protocol_buffer(29, 1):uint()))
+
+                    -- Decode byte 0x1E (dec 30) (CRC)
                     -- Validate CRC for 32-byte protocol length
                     local crc_80 = protocol_buffer(30, 1):uint()
                     local calculated_crc_80 = validate_crc(udp_payload_buffer(13, 32), 32)
