@@ -168,7 +168,7 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
 
                 data_subtree:add(udp_payload_buffer(26, 1), "Command Check: " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
                 data_subtree:add(udp_payload_buffer(27, 1), "CRC: " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
-                data_subtree:add(udp_payload_buffer(28, 1), "Prologue: " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
+                data_subtree:add(udp_payload_buffer(28, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
 
                 -- Validate CRC
                 local calculated_crc = validate_crc(udp_payload_buffer(13, 16), 16)
@@ -322,8 +322,8 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
                 end
 
-                -- Add Prologue field
-                data_subtree:add(udp_payload_buffer(43, 1), "Prologue: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
+                -- Add EndOfFrame field
+                data_subtree:add(udp_payload_buffer(43, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
 
 
 
