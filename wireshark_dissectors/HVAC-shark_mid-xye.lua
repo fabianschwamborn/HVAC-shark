@@ -10,12 +10,14 @@ f.reserved = ProtoField.uint8("hvac_shark.reserved", "Reserved")
 f.data = ProtoField.bytes("hvac_shark.data", "Data")
 
 -- Calculate and validate CRC
+-- Data is summarized up to the last byte before the CRC-field, as well as the following byte after the crc-field
 local function validate_crc(crc_input_data, length)
     local sum = 0
-    for i = 0, length - 1 do
+    for i = 0, length - 3 do
         sum = sum + crc_input_data(i, 1):uint()
     end
-    return 255 - (sum % 256) + 1
+    sum = sum + crc_input_data( (length - 1), 1):uint()
+    return 255 - (sum % 256)
 end
 
 -- Define the dissector function
@@ -50,6 +52,24 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
             -- Decode the XYE protocol data
             local data_subtree = subtree:add(f.data, udp_payload_buffer(13, udp_payload_buffer:len() - 13))
             local protocol_buffer = udp_payload_buffer(13, udp_payload_buffer:len() - 13)
+
+            -- Early protocol validation
+            if protocol_buffer:len() >= 3 then
+                -- Add buffer length information
+                data_subtree:add(udp_payload_buffer(13, 1), string.format("Protocol Buffer Length: %d bytes", protocol_buffer:len()))
+                
+                -- Extract and validate CRC
+                local protocol_crc = protocol_buffer(protocol_buffer:len() - 2, 1):uint()
+                local calculated_protocol_crc = validate_crc(protocol_buffer, protocol_buffer:len())
+                
+                data_subtree:add(udp_payload_buffer(13 + protocol_buffer:len() - 2, 1), 
+                    string.format("Protocol CRC: 0x%02X %s", 
+                        protocol_crc,
+                        calculated_protocol_crc == protocol_crc and "(Valid)" or 
+                        string.format("(Invalid, calculated: 0x%02X)", calculated_protocol_crc)))
+            end
+
+
 
             -- Check if the destination is 0x80
             if protocol_buffer(2, 1):uint() == 0x80 then
