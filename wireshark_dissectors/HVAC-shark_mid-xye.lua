@@ -7,7 +7,9 @@ f.start_sequence = ProtoField.string("hvac_shark.start_sequence", "Start Sequenc
 f.manufacturer = ProtoField.uint8("hvac_shark.manufacturer", "Manufacturer")
 f.bus_type = ProtoField.uint8("hvac_shark.bus_type", "Bus Type")
 f.reserved = ProtoField.uint8("hvac_shark.reserved", "Reserved")
+f.command_code = ProtoField.uint8("hvac_shark.command_code", "Command Code", base.HEX)
 f.data = ProtoField.bytes("hvac_shark.data", "Data")
+f.command_length = ProtoField.uint8("hvac_shark.command_length", "Command Length")
 
 -- Calculate and validate CRC
 -- Data is summarized up to the last byte before the CRC-field, as well as the following byte after the crc-field
@@ -49,11 +51,16 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
 
         -- Only further decode if manufacturer is Midea (1) and bus type is XYE (0)
         if manufacturer == 1 and bus_type == 0 then
+            
+            -- Add Command Code field to the protocol tree
+            subtree:add(f.command_code, udp_payload_buffer(14, 1))
+            
             -- Decode the XYE protocol data
             local protocol_buffer = udp_payload_buffer(13, udp_payload_buffer:len() - 13)
 
-
             -- Add buffer length information
+            local protocol_length = protocol_buffer:len()
+            subtree:add(f.command_length, protocol_length)
             local protocol_buffer_anotation_string = string.format("(Length: %d bytes - ", protocol_buffer:len())
             
             -- Early protocol validation
@@ -67,10 +74,9 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     calculated_protocol_crc == protocol_crc and " valid" or 
                     string.format(" invalid, calculated: 0x%02X", calculated_protocol_crc))
             end
+
+
             local data_subtree = subtree:add(f.data, udp_payload_buffer(13, udp_payload_buffer:len() - 13)):append_text(" " .. protocol_buffer_anotation_string .. ")")
-
-
-
 
             local protocol_length = protocol_buffer:len()
             if protocol_length == 16 then
@@ -79,6 +85,7 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                 data_subtree:add(udp_payload_buffer(13, 1), "0x00 Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
 				
 				local command_code = protocol_buffer(1, 1):uint()
+            
 				local command_name = "Unknown"
 				
 				if command_code == 0xc0 then
@@ -92,9 +99,9 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
 				elseif command_code == 0xcd then
 					command_name = "Unlock"
 				end
-				
+	
 				data_subtree:add(udp_payload_buffer(14, 1), "0x01 Command: " .. string.format("0x%02X", command_code) .. " (" .. command_name .. ")")
-
+                
                 data_subtree:add(udp_payload_buffer(15, 1), "0x02 Destination: " .. string.format("0x%02X", protocol_buffer(2, 1):uint()))
                 data_subtree:add(udp_payload_buffer(16, 1), "0x03 Source / Own ID: " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
                 data_subtree:add(udp_payload_buffer(17, 1), "0x04 From Master: " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
