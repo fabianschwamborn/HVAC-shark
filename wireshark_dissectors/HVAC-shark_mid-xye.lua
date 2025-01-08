@@ -203,7 +203,7 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
             elseif protocol_length == 32 then
                 -- for 32-byte frames at least 2 versions are existing, 0xc4 is at least decoded differently than other commands
                 local command_code = protocol_buffer(1, 1):uint()
-                if command_code == 0xc0 or command_code == 0xc03 then
+                if command_code == 0xc0 or command_code == 0xc3 then
                     -- Decode byte 0x00 (Preamble)
                     data_subtree:add(udp_payload_buffer(13, 1), "0x00 Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
                     
@@ -451,12 +451,42 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     data_subtree:add(udp_payload_buffer(28, 1), "Unknown byte 0x0F (15): " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
                     
                     -- Decode byte 0x10 (dec 16)
-                    -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(29, 1), "Unknown byte 0x10 (16): " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
+                    -- Decode the oper_mode field
+                    local oper_mode = protocol_buffer(16, 1):uint()
+                    local oper_mode_str = ""
+                    if oper_mode == 0x00 then
+                        oper_mode_str = "Off"
+                    elseif oper_mode == 0x80 then
+                        oper_mode_str = "Auto"
+                    elseif oper_mode == 0x88 then
+                        oper_mode_str = "Cool"
+                    elseif oper_mode == 0x82 then
+                        oper_mode_str = "Dry"
+                    elseif oper_mode == 0x84 then
+                        oper_mode_str = "Heat"
+                    elseif oper_mode == 0x81 then
+                        oper_mode_str = "Fan"
+                    else
+                        oper_mode_str = "Unknown"
+                    end
+                    data_subtree:add(udp_payload_buffer(29, 1), "0x10 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. oper_mode_str .. ")")
                     
                     -- Decode byte 0x11 (dec 17)
-                    -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(30, 1), "Unknown byte 0x11 (17): " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
+                    -- Decode the fan field
+                    local fan = protocol_buffer(17, 1):uint()
+                    local fan_str = ""
+                    if fan == 0x80 then
+                        fan_str = "Auto"
+                    elseif fan == 0x01 then
+                        fan_str = "High"
+                    elseif fan == 0x02 then
+                        fan_str = "Medium"
+                    elseif fan == 0x03 then
+                        fan_str = "Low"
+                    else
+                        fan_str = "Unknown"
+                    end
+                    data_subtree:add(udp_payload_buffer(30, 1), "0x11 Fan: " .. string.format("0x%02X", fan) .. " (" .. fan_str .. ")")
                     
                     -- Decode byte 0x12 (dec 18)
                     -- Decode unknown field
