@@ -377,15 +377,15 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     local calculated_crc_80 = validate_crc(udp_payload_buffer(13, 32), 32)
 
                     if calculated_crc_80 == crc_80 then
-                        data_subtree:add(udp_payload_buffer(42, 1), "0x1E CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
+                        data_subtree:add(udp_payload_buffer(43, 1), "0x1E CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
                     else
-                        data_subtree:add(udp_payload_buffer(42, 1), "0x1E CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
+                        data_subtree:add(udp_payload_buffer(43, 1), "0x1E CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
                     end
 
                     -- Add EndOfFrame field
-                    data_subtree:add(udp_payload_buffer(43, 1), "0x1F EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(44, 1), "0x1F EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
 
-                elseif command_code == 0xc6 then
+                elseif command_code == 0xc4 or command_code == 0xc6 then
 
                     -- Decode byte 0x00 (Preamble)
                     data_subtree:add(udp_payload_buffer(13, 1), "0x00 Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
@@ -396,263 +396,263 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                
                     -- Decode byte 0x02 (dec 2)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(14, 1), "Unknown byte 0x02 (02): " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(15, 1), "Unknown byte 0x02 (02): " .. string.format("0x%02X", protocol_buffer(2, 1):uint()))
                     
                     -- Decode byte 0x03 (dec 3)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(15, 1), "Unknown byte 0x03 (03): " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(16, 1), "Unknown byte 0x03 (03): " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
                     
                     -- Decode byte 0x04 (dec 4)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(16, 1), "Unknown byte 0x04 (04): " .. string.format("0x%02X", protocol_buffer(5, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(17, 1), "Unknown byte 0x04 (04): " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
                     
                     -- Decode byte 0x05 (dec 5)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(17, 1), "Unknown byte 0x05 (05): " .. string.format("0x%02X", protocol_buffer(6, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(18, 1), "Unknown byte 0x05 (05): " .. string.format("0x%02X", protocol_buffer(5, 1):uint()))
                     
                     -- Decode byte 0x06 (dec 6)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(18, 1), "Unknown byte 0x06 (06): " .. string.format("0x%02X", protocol_buffer(7, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(19, 1), "Unknown byte 0x06 (06): " .. string.format("0x%02X", protocol_buffer(6, 1):uint()))
                     
                     -- Decode byte 0x07 (dec 7)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(19, 1), "Unknown byte 0x07 (07): " .. string.format("0x%02X", protocol_buffer(8, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(20, 1), "Unknown byte 0x07 (07): " .. string.format("0x%02X", protocol_buffer(7, 1):uint()))
                     
                     -- Decode byte 0x08 (dec 8)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(20, 1), "Unknown byte 0x08 (08): " .. string.format("0x%02X", protocol_buffer(9, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(21, 1), "Unknown byte 0x08 (08): " .. string.format("0x%02X", protocol_buffer(8, 1):uint()))
                     
                     -- Decode byte 0x09 (dec 9)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(21, 1), "Unknown byte 0x09 (09): " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(22, 1), "Unknown byte 0x09 (09): " .. string.format("0x%02X", protocol_buffer(9, 1):uint()))
                     
                     -- Decode byte 0x0A (dec 10)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(22, 1), "Unknown byte 0x0A (10): " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(23, 1), "Unknown byte 0x0A (10): " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
                     
                     -- Decode byte 0x0B (dec 11)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(23, 1), "Unknown byte 0x0B (11): " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(24, 1), "Unknown byte 0x0B (11): " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
                     
                     -- Decode byte 0x0C (dec 12)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(24, 1), "Unknown byte 0x0C (12): " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(25, 1), "Unknown byte 0x0C (12): " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
                     
                     -- Decode byte 0x0D (dec 13)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(25, 1), "Unknown byte 0x0D (13): " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(26, 1), "Unknown byte 0x0D (13): " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
                     
                     -- Decode byte 0x0E (dec 14)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(26, 1), "Unknown byte 0x0E (14): " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(27, 1), "Unknown byte 0x0E (14): " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
                     
                     -- Decode byte 0x0F (dec 15)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(27, 1), "Unknown byte 0x0F (15): " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(28, 1), "Unknown byte 0x0F (15): " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
                     
                     -- Decode byte 0x10 (dec 16)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(28, 1), "Unknown byte 0x10 (16): " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(29, 1), "Unknown byte 0x10 (16): " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
                     
                     -- Decode byte 0x11 (dec 17)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(29, 1), "Unknown byte 0x11 (17): " .. string.format("0x%02X", protocol_buffer(18, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(30, 1), "Unknown byte 0x11 (17): " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
                     
                     -- Decode byte 0x12 (dec 18)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(30, 1), "Unknown byte 0x12 (18): " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(31, 1), "Unknown byte 0x12 (18): " .. string.format("0x%02X", protocol_buffer(18, 1):uint()))
                     
                     -- Decode byte 0x13 (dec 19)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(31, 1), "Unknown byte 0x13 (19): " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(32, 1), "Unknown byte 0x13 (19): " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
                     
                     -- Decode byte 0x14 (dec 20)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(32, 1), "Unknown byte 0x14 (20): " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(33, 1), "Unknown byte 0x14 (20): " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
                     
                     -- Decode byte 0x15 (dec 21)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(33, 1), "Unknown byte 0x15 (21): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(34, 1), "Unknown byte 0x15 (21): " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
                     
                     -- Decode byte 0x16 (dec 22)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(34, 1), "Unknown byte 0x16 (22): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(35, 1), "Unknown byte 0x16 (22): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
                     
                     -- Decode byte 0x17 (dec 23)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(35, 1), "Unknown byte 0x17 (23): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(36, 1), "Unknown byte 0x17 (23): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
                     
                     -- Decode byte 0x18 (dec 24)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(36, 1), "Unknown byte 0x18 (24): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(37, 1), "Unknown byte 0x18 (24): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
                     
                     -- Decode byte 0x19 (dec 25)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(37, 1), "Unknown byte 0x19 (25): " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(38, 1), "Unknown byte 0x19 (25): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
                     
                     -- Decode byte 0x1A (dec 26)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(38, 1), "Unknown byte 0x1A (26): " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(39, 1), "Unknown byte 0x1A (26): " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
                     
                     -- Decode byte 0x1B (dec 27)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(39, 1), "Unknown byte 0x1B (27): " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(40, 1), "Unknown byte 0x1B (27): " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
                     
                     -- Decode byte 0x1C (dec 28)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(40, 1), "Unknown byte 0x1C (28): " .. string.format("0x%02X", protocol_buffer(29, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(41, 1), "Unknown byte 0x1C (28): " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
                     
                     -- Decode byte 0x1D (dec 29)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(41, 1), "Unknown byte 0x1D (29): " .. string.format("0x%02X", protocol_buffer(30, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(42, 1), "Unknown byte 0x1D (29): " .. string.format("0x%02X", protocol_buffer(29, 1):uint()))
                     
                     -- Validate CRC for 32-byte protocol length
                     local crc_80 = protocol_buffer(30, 1):uint()
                     local calculated_crc_80 = validate_crc(udp_payload_buffer(13, 32), 32)
 
                     if calculated_crc_80 == crc_80 then
-                        data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
+                        data_subtree:add(udp_payload_buffer(43, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
                     else
-                        data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
+                        data_subtree:add(udp_payload_buffer(43, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
                     end
 
                     -- Add EndOfFrame field
-                    data_subtree:add(udp_payload_buffer(43, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(44, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
 
                 else
                     -- Decode byte 0x00 (Preamble)
-                    data_subtree:add(udp_payload_buffer(13, 1), "Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(13, 1), "0x00 Preamble: " .. string.format("0x%02X", protocol_buffer(0, 1):uint()))
                 
                     -- Decode byte 0x01 (dec 1)
                     -- Decode the response code field
-                    data_subtree:add(udp_payload_buffer(14, 1), "Response Code: " .. string.format("0x%02X", protocol_buffer(1, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(14, 1), "0x01 Response Code: " .. string.format("0x%02X", protocol_buffer(1, 1):uint()))
                
                     -- Decode byte 0x02 (dec 2)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(14, 1), "Unknown byte 0x02 (02): " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(15, 1), "Unknown byte 0x02 (02): " .. string.format("0x%02X", protocol_buffer(2, 1):uint()))
                     
                     -- Decode byte 0x03 (dec 3)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(15, 1), "Unknown byte 0x03 (03): " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(16, 1), "Unknown byte 0x03 (03): " .. string.format("0x%02X", protocol_buffer(3, 1):uint()))
                     
                     -- Decode byte 0x04 (dec 4)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(16, 1), "Unknown byte 0x04 (04): " .. string.format("0x%02X", protocol_buffer(5, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(17, 1), "Unknown byte 0x04 (04): " .. string.format("0x%02X", protocol_buffer(4, 1):uint()))
                     
                     -- Decode byte 0x05 (dec 5)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(17, 1), "Unknown byte 0x05 (05): " .. string.format("0x%02X", protocol_buffer(6, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(18, 1), "Unknown byte 0x05 (05): " .. string.format("0x%02X", protocol_buffer(5, 1):uint()))
                     
                     -- Decode byte 0x06 (dec 6)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(18, 1), "Unknown byte 0x06 (06): " .. string.format("0x%02X", protocol_buffer(7, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(19, 1), "Unknown byte 0x06 (06): " .. string.format("0x%02X", protocol_buffer(6, 1):uint()))
                     
                     -- Decode byte 0x07 (dec 7)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(19, 1), "Unknown byte 0x07 (07): " .. string.format("0x%02X", protocol_buffer(8, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(20, 1), "Unknown byte 0x07 (07): " .. string.format("0x%02X", protocol_buffer(7, 1):uint()))
                     
                     -- Decode byte 0x08 (dec 8)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(20, 1), "Unknown byte 0x08 (08): " .. string.format("0x%02X", protocol_buffer(9, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(21, 1), "Unknown byte 0x08 (08): " .. string.format("0x%02X", protocol_buffer(8, 1):uint()))
                     
                     -- Decode byte 0x09 (dec 9)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(21, 1), "Unknown byte 0x09 (09): " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(22, 1), "Unknown byte 0x09 (09): " .. string.format("0x%02X", protocol_buffer(9, 1):uint()))
                     
                     -- Decode byte 0x0A (dec 10)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(22, 1), "Unknown byte 0x0A (10): " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(23, 1), "Unknown byte 0x0A (10): " .. string.format("0x%02X", protocol_buffer(10, 1):uint()))
                     
                     -- Decode byte 0x0B (dec 11)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(23, 1), "Unknown byte 0x0B (11): " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(24, 1), "Unknown byte 0x0B (11): " .. string.format("0x%02X", protocol_buffer(11, 1):uint()))
                     
                     -- Decode byte 0x0C (dec 12)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(24, 1), "Unknown byte 0x0C (12): " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(25, 1), "Unknown byte 0x0C (12): " .. string.format("0x%02X", protocol_buffer(12, 1):uint()))
                     
                     -- Decode byte 0x0D (dec 13)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(25, 1), "Unknown byte 0x0D (13): " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(26, 1), "Unknown byte 0x0D (13): " .. string.format("0x%02X", protocol_buffer(13, 1):uint()))
                     
                     -- Decode byte 0x0E (dec 14)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(26, 1), "Unknown byte 0x0E (14): " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(27, 1), "Unknown byte 0x0E (14): " .. string.format("0x%02X", protocol_buffer(14, 1):uint()))
                     
                     -- Decode byte 0x0F (dec 15)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(27, 1), "Unknown byte 0x0F (15): " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(28, 1), "Unknown byte 0x0F (15): " .. string.format("0x%02X", protocol_buffer(15, 1):uint()))
                     
                     -- Decode byte 0x10 (dec 16)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(28, 1), "Unknown byte 0x10 (16): " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(29, 1), "Unknown byte 0x10 (16): " .. string.format("0x%02X", protocol_buffer(16, 1):uint()))
                     
                     -- Decode byte 0x11 (dec 17)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(29, 1), "Unknown byte 0x11 (17): " .. string.format("0x%02X", protocol_buffer(18, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(30, 1), "Unknown byte 0x11 (17): " .. string.format("0x%02X", protocol_buffer(17, 1):uint()))
                     
                     -- Decode byte 0x12 (dec 18)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(30, 1), "Unknown byte 0x12 (18): " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(31, 1), "Unknown byte 0x12 (18): " .. string.format("0x%02X", protocol_buffer(18, 1):uint()))
                     
                     -- Decode byte 0x13 (dec 19)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(31, 1), "Unknown byte 0x13 (19): " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(32, 1), "Unknown byte 0x13 (19): " .. string.format("0x%02X", protocol_buffer(19, 1):uint()))
                     
                     -- Decode byte 0x14 (dec 20)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(32, 1), "Unknown byte 0x14 (20): " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(33, 1), "Unknown byte 0x14 (20): " .. string.format("0x%02X", protocol_buffer(20, 1):uint()))
                     
                     -- Decode byte 0x15 (dec 21)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(33, 1), "Unknown byte 0x15 (21): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(34, 1), "Unknown byte 0x15 (21): " .. string.format("0x%02X", protocol_buffer(21, 1):uint()))
                     
                     -- Decode byte 0x16 (dec 22)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(34, 1), "Unknown byte 0x16 (22): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(35, 1), "Unknown byte 0x16 (22): " .. string.format("0x%02X", protocol_buffer(22, 1):uint()))
                     
                     -- Decode byte 0x17 (dec 23)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(35, 1), "Unknown byte 0x17 (23): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(36, 1), "Unknown byte 0x17 (23): " .. string.format("0x%02X", protocol_buffer(23, 1):uint()))
                     
                     -- Decode byte 0x18 (dec 24)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(36, 1), "Unknown byte 0x18 (24): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(37, 1), "Unknown byte 0x18 (24): " .. string.format("0x%02X", protocol_buffer(24, 1):uint()))
                     
                     -- Decode byte 0x19 (dec 25)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(37, 1), "Unknown byte 0x19 (25): " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(38, 1), "Unknown byte 0x19 (25): " .. string.format("0x%02X", protocol_buffer(25, 1):uint()))
                     
                     -- Decode byte 0x1A (dec 26)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(38, 1), "Unknown byte 0x1A (26): " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(39, 1), "Unknown byte 0x1A (26): " .. string.format("0x%02X", protocol_buffer(26, 1):uint()))
                     
                     -- Decode byte 0x1B (dec 27)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(39, 1), "Unknown byte 0x1B (27): " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(40, 1), "Unknown byte 0x1B (27): " .. string.format("0x%02X", protocol_buffer(27, 1):uint()))
                     
                     -- Decode byte 0x1C (dec 28)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(40, 1), "Unknown byte 0x1C (28): " .. string.format("0x%02X", protocol_buffer(29, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(41, 1), "Unknown byte 0x1C (28): " .. string.format("0x%02X", protocol_buffer(28, 1):uint()))
                     
                     -- Decode byte 0x1D (dec 29)
                     -- Decode unknown field
-                    data_subtree:add(udp_payload_buffer(41, 1), "Unknown byte 0x1D (29): " .. string.format("0x%02X", protocol_buffer(30, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(42, 1), "Unknown byte 0x1D (29): " .. string.format("0x%02X", protocol_buffer(29, 1):uint()))
                     
                     -- Validate CRC for 32-byte protocol length
                     local crc_80 = protocol_buffer(30, 1):uint()
                     local calculated_crc_80 = validate_crc(udp_payload_buffer(13, 32), 32)
 
                     if calculated_crc_80 == crc_80 then
-                        data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
+                        data_subtree:add(udp_payload_buffer(43, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Valid)")
                     else
-                        data_subtree:add(udp_payload_buffer(42, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
+                        data_subtree:add(udp_payload_buffer(43, 1), "CRC: " .. string.format("0x%02X", crc_80) .. " (Invalid, calculated: 0x%02X)", calculated_crc_80)
                     end
 
                     -- Add EndOfFrame field
-                    data_subtree:add(udp_payload_buffer(43, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
+                    data_subtree:add(udp_payload_buffer(44, 1), "EndOfFrame: " .. string.format("0x%02X", protocol_buffer(31, 1):uint()))
                 
-                end -- end of if command_code ~= 0xc0, 0xc6
+                end -- end of if command_code
 
 
             else
