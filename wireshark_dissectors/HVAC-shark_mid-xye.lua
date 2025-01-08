@@ -11,6 +11,48 @@ f.command_code = ProtoField.uint8("hvac_shark.command_code", "Command Code", bas
 f.data = ProtoField.bytes("hvac_shark.data", "Data")
 f.command_length = ProtoField.uint8("hvac_shark.command_length", "Command Length")
 
+-- Shared decoder functions
+
+-- Define the fan decode function
+function getFanString(fan)
+    local fan_str = ""
+    if fan == 0x80 then
+        fan_str = "Auto"
+    elseif fan == 0x01 then
+        fan_str = "High"
+    elseif fan == 0x02 then
+        fan_str = "Medium"
+    elseif fan == 0x04 then
+        fan_str = "Low"
+    elseif fan == 0x00 then
+        fan_str = "Off"
+    else
+        fan_str = "Unknown"
+    end
+    return fan_str
+end
+
+function getOperModeString(oper_mode)
+    local oper_mode_str = ""
+    if oper_mode == 0x00 then
+        oper_mode_str = "Off"
+    elseif oper_mode == 0x80 then
+        oper_mode_str = "Auto"
+    elseif oper_mode == 0x88 then
+        oper_mode_str = "Cool"
+    elseif oper_mode == 0x82 then
+        oper_mode_str = "Dry"
+    elseif oper_mode == 0x84 then
+        oper_mode_str = "Heat"
+    elseif oper_mode == 0x81 then
+        oper_mode_str = "Fan"
+    else
+        oper_mode_str = "Unknown"
+    end
+    return oper_mode_str
+end
+
+
 -- Calculate and validate CRC
 -- Data is summarized up to the last byte before the CRC-field, as well as the following byte after the crc-field
 local function validate_crc(crc_input_data, length)
@@ -112,40 +154,12 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     -- Decode byte 0x06
                     -- Decode the oper_mode field
                     local oper_mode = protocol_buffer(6, 1):uint()
-                    local oper_mode_str = ""
-                    if oper_mode == 0x00 then
-                        oper_mode_str = "Off"
-                    elseif oper_mode == 0x80 then
-                        oper_mode_str = "Auto"
-                    elseif oper_mode == 0x88 then
-                        oper_mode_str = "Cool"
-                    elseif oper_mode == 0x82 then
-                        oper_mode_str = "Dry"
-                    elseif oper_mode == 0x84 then
-                        oper_mode_str = "Heat"
-                    elseif oper_mode == 0x81 then
-                        oper_mode_str = "Fan"
-                    else
-                        oper_mode_str = "Unknown"
-                    end
-                    data_subtree:add(udp_payload_buffer(19, 1), "0x06 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. oper_mode_str .. ")")
+                    data_subtree:add(udp_payload_buffer(19, 1), "0x06 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. getOperModeString(oper_mode) .. ")")
 
                     -- Decode byte 0x07
                     -- Decode the fan field
                     local fan = protocol_buffer(7, 1):uint()
-                    local fan_str = ""
-                    if fan == 0x80 then
-                        fan_str = "Auto"
-                    elseif fan == 0x01 then
-                        fan_str = "High"
-                    elseif fan == 0x02 then
-                        fan_str = "Medium"
-                    elseif fan == 0x03 then
-                        fan_str = "Low"
-                    else
-                        fan_str = "Unknown"
-                    end
-                    data_subtree:add(udp_payload_buffer(20, 1), "0x07 Fan: " .. string.format("0x%02X", fan) .. " (" .. fan_str .. ")")
+                    data_subtree:add(udp_payload_buffer(20, 1), "0x07 Fan: " .. string.format("0x%02X", fan) .. " (" .. getFanString(fan) .. ")")
 
                     -- Decode byte 0x08
                     data_subtree:add(udp_payload_buffer(21, 1), "0x08 Set Temp: " .. string.format("0x%02X", protocol_buffer(8, 1):uint()) .. " °C")
@@ -248,40 +262,12 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     -- Decode byte 0x08
                     -- Decode the oper_mode field
                     local oper_mode = protocol_buffer(8, 1):uint()
-                    local oper_mode_str = ""
-                    if oper_mode == 0x00 then
-                        oper_mode_str = "Off"
-                    elseif oper_mode == 0x80 then
-                        oper_mode_str = "Auto"
-                    elseif oper_mode == 0x88 then
-                        oper_mode_str = "Cool"
-                    elseif oper_mode == 0x82 then
-                        oper_mode_str = "Dry"
-                    elseif oper_mode == 0x84 then
-                        oper_mode_str = "Heat"
-                    elseif oper_mode == 0x81 then
-                        oper_mode_str = "Fan"
-                    else
-                        oper_mode_str = "Unknown"
-                    end
-                    data_subtree:add(udp_payload_buffer(21, 1), "0x08 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. oper_mode_str .. ")")
+                    data_subtree:add(udp_payload_buffer(21, 1), "0x08 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. getOperModeString(oper_mode) .. ")")
 
                     -- Decode byte 0x09
                     -- Decode the fan field
                     local fan = protocol_buffer(9, 1):uint()
-                    local fan_str = ""
-                    if fan == 0x80 then
-                        fan_str = "Auto"
-                    elseif fan == 0x01 then
-                        fan_str = "High"
-                    elseif fan == 0x02 then
-                        fan_str = "Medium"
-                    elseif fan == 0x03 then
-                        fan_str = "Low"
-                    else
-                        fan_str = "Unknown"
-                    end
-                    data_subtree:add(udp_payload_buffer(22, 1), "0x09 Fan: " .. string.format("0x%02X", fan) .. " (" .. fan_str .. ")")
+                    data_subtree:add(udp_payload_buffer(22, 1), "0x09 Fan: " .. string.format("0x%02X", fan) .. " (" .. getFanString(fan) .. ")")
                     
                     -- Decode byte 0x0A (dec 10)
                     -- Decode the set_temp field
@@ -453,40 +439,13 @@ function hvac_shark_proto.dissector(udp_payload_buffer, pinfo, tree)
                     -- Decode byte 0x10 (dec 16)
                     -- Decode the oper_mode field
                     local oper_mode = protocol_buffer(16, 1):uint()
-                    local oper_mode_str = ""
-                    if oper_mode == 0x00 then
-                        oper_mode_str = "Off"
-                    elseif oper_mode == 0x80 then
-                        oper_mode_str = "Auto"
-                    elseif oper_mode == 0x88 then
-                        oper_mode_str = "Cool"
-                    elseif oper_mode == 0x82 then
-                        oper_mode_str = "Dry"
-                    elseif oper_mode == 0x84 then
-                        oper_mode_str = "Heat"
-                    elseif oper_mode == 0x81 then
-                        oper_mode_str = "Fan"
-                    else
-                        oper_mode_str = "Unknown"
-                    end
-                    data_subtree:add(udp_payload_buffer(29, 1), "0x10 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. oper_mode_str .. ")")
+                    data_subtree:add(udp_payload_buffer(29, 1), "0x10 Operating Mode: " .. string.format("0x%02X", oper_mode) .. " (" .. getOperModeString(oper_mode) .. ")")
                     
                     -- Decode byte 0x11 (dec 17)
                     -- Decode the fan field
                     local fan = protocol_buffer(17, 1):uint()
-                    local fan_str = ""
-                    if fan == 0x80 then
-                        fan_str = "Auto"
-                    elseif fan == 0x01 then
-                        fan_str = "High"
-                    elseif fan == 0x02 then
-                        fan_str = "Medium"
-                    elseif fan == 0x03 then
-                        fan_str = "Low"
-                    else
-                        fan_str = "Unknown"
-                    end
-                    data_subtree:add(udp_payload_buffer(30, 1), "0x11 Fan: " .. string.format("0x%02X", fan) .. " (" .. fan_str .. ")")
+
+                    data_subtree:add(udp_payload_buffer(30, 1), "0x11 Fan: " .. string.format("0x%02X", fan) .. " (" .. getFanString(fan) .. ")")
                     
                     -- Decode byte 0x12 (dec 18)
                     -- Decode unknown field
